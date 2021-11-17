@@ -4,10 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"strings"
+
 	"mxshop_api/user_api/forms"
 	"mxshop_api/user_api/global"
 	"mxshop_api/user_api/global/response"
@@ -16,6 +20,27 @@ import (
 	"strconv"
 	"time"
 )
+
+func removeTopStruct(fileds map[string]string) map[string]string {
+	rsp := map[string]string{}
+	for field, err := range fileds {
+		rsp[field[strings.Index(field, ".")+1:]] = err
+	}
+	return rsp
+}
+
+func HandleValidatorError(c *gin.Context, err error) {
+	errs, ok := err.(validator.ValidationErrors)
+	if !ok {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": err.Error(),
+		})
+	}
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": removeTopStruct(errs.Translate(global.Trans)),
+	})
+	return
+}
 
 func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 	// 将grpc的code转为HTTP的状态码
@@ -92,5 +117,8 @@ func GetUserList(ctx *gin.Context) {
 
 func PassWordLogin(c *gin.Context) {
 	// 表单验证
-
+	passwordLogin := forms.PassWordLoginForm{}
+	if err := c.ShouldBind(&passwordLogin); err != nil {
+		HandleValidatorError(c, err)
+	}
 }

@@ -20,6 +20,9 @@ func main() {
 	// 初始化routers
 	Router := initialize.Routers()
 
+	// 初始化
+	_ = initialize.InitTrans("zh")
+
 	port := global.ServerConfig.Port
 	zap.S().Infof("启动服务器, 端口:%d", port)
 
