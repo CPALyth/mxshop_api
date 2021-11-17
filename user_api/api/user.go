@@ -3,12 +3,15 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"mxshop_api/user_api/middlewares"
+	"mxshop_api/user_api/models"
 	"strings"
 
 	"mxshop_api/user_api/forms"
@@ -165,7 +168,28 @@ func PassWordLogin(c *gin.Context) {
 		})
 		return
 	}
+	// 登录成功, 返回token
+	now_unix := time.Now().Unix()
+	claims := models.CustomClaims{
+		ID:          uint(rsp.Id),
+		NickName:    rsp.NickName,
+		AuthorityId: uint(rsp.Role),
+		StandardClaims: jwt.StandardClaims{
+			NotBefore: now_unix,               // 签名的生效时间
+			ExpiresAt: now_unix + 60*60*24*30, // 30天过期
+			Issuer:    "ws",
+		},
+	}
+	j := middlewares.NewJWT()
+	token, err := j.CreateToken(claims)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "生成token失败",
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"msg": "登录成功",
+		"msg":   "登录成功",
+		"token": token,
 	})
 }
