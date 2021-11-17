@@ -75,13 +75,14 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 func GetUserList(ctx *gin.Context) {
 	ip := global.ServerConfig.UserSrvInfo.Host
 	port := global.ServerConfig.UserSrvInfo.Port
-	fmt.Println("ip:", ip, " port:", port)
 	// 拨号连接用户grpc服务器
 	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", ip, port), grpc.WithInsecure())
 	if err != nil {
 		zap.S().Errorw("[GetUserList] 连接用户服务失败",
 			"msg", err.Error())
 	}
+	userSrvClient := proto.NewUserClient(userConn)
+
 	// 获取查询参数
 	pn := ctx.DefaultQuery("pn", "0")
 	pnInt, _ := strconv.Atoi(pn)
@@ -89,8 +90,6 @@ func GetUserList(ctx *gin.Context) {
 	pSizeInt, _ := strconv.Atoi(pSize)
 	zap.S().Info(pnInt, pSizeInt)
 	// 调用接口
-	userSrvClient := proto.NewUserClient(userConn)
-
 	rsp, err := userSrvClient.GetUserList(context.Background(), &proto.PageInfo{
 		Pn:    uint32(pnInt),
 		PSize: uint32(pSizeInt),
@@ -120,4 +119,53 @@ func PassWordLogin(c *gin.Context) {
 	if err := c.ShouldBind(&passwordLogin); err != nil {
 		HandleValidatorError(c, err)
 	}
+	ip := global.ServerConfig.UserSrvInfo.Host
+	port := global.ServerConfig.UserSrvInfo.Port
+	// 拨号连接用户grpc服务器
+	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", ip, port), grpc.WithInsecure())
+	if err != nil {
+		zap.S().Errorw("[GetUserList] 连接用户服务失败",
+			"msg", err.Error())
+	}
+	userSrvClient := proto.NewUserClient(userConn)
+	// 登录的逻辑
+	rsp, err := userSrvClient.GetUserByMobile(context.Background(), &proto.MobileRequest{
+		Mobile: passwordLogin.Mobile,
+	})
+	if err != nil {
+		e, ok := status.FromError(err)
+		if ok {
+			switch e.Code() {
+			case codes.NotFound:
+				c.JSON(http.StatusBadRequest, map[string]string{
+					"mobile": "用户不存在",
+				})
+			default:
+				c.JSON(http.StatusInternalServerError, map[string]string{
+					"mobile": "登录失败",
+				})
+			}
+			return
+		}
+	}
+	// 检查密码是否正确
+	passRsp, passErr := userSrvClient.CheckPassword(context.Background(), &proto.PasswordCheckInfo{
+		Password:          passwordLogin.PassWord,
+		EncryptedPassword: rsp.PassWord,
+	})
+	if passErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "登录失败",
+		})
+		return
+	}
+	if passRsp.Success == false {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "密码错误",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"msg": "登录成功",
+	})
 }
