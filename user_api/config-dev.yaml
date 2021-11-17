@@ -1,5 +1,5 @@
 name: 'user-api'
 port: 8021
-mysql:
+user_srv:
   host: '127.0.0.1'
-  port: 3306
+  port: 50051
