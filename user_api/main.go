@@ -2,9 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin/binding"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 	"mxshop_api/user_api/global"
 	"mxshop_api/user_api/initialize"
+	myvalidator "mxshop_api/user_api/validator"
 )
 
 func main() {
@@ -22,6 +26,18 @@ func main() {
 
 	// 初始化
 	_ = initialize.InitTrans("zh")
+
+	// 注册验证器
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		_ = v.RegisterValidation("mobile", myvalidator.ValidateMobile)
+		// 解决验证器报错未翻译为中文
+		_ = v.RegisterTranslation("mobile", global.Trans, func(ut ut.Translator) error {
+			return ut.Add("mobile", "{0} 错误的手机号格式", true)
+		}, func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("mobile", fe.Field())
+			return t
+		})
+	}
 
 	port := global.ServerConfig.Port
 	zap.S().Infof("启动服务器, 端口:%d", port)
