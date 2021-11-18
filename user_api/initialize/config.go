@@ -10,7 +10,7 @@ import (
 
 func InitConfig() {
 	configFileName := "config-online.yaml"
-	fmt.Println(os.Getenv("MXSHOP_DEBUG"))
+	fmt.Println("MXSHOP_DEBUG:", os.Getenv("MXSHOP_DEBUG"))
 	if os.Getenv("MXSHOP_DEBUG") == "true" {
 		configFileName = "config-dev.yaml"
 	}

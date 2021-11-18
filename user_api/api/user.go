@@ -116,13 +116,23 @@ func GetUserList(ctx *gin.Context) {
 }
 
 func PassWordLogin(c *gin.Context) {
+	fmt.Println("登录...")
 	// 表单验证
 	passwordLogin := forms.PassWordLoginForm{}
 	if err := c.ShouldBind(&passwordLogin); err != nil {
 		HandleValidatorError(c, err)
+		return
 	}
 	ip := global.ServerConfig.UserSrvInfo.Host
 	port := global.ServerConfig.UserSrvInfo.Port
+	// 验证验证码
+	pass := store.Verify(passwordLogin.CaptchaId, passwordLogin.Captcha, true)
+	if !pass {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"captcha": "验证码错误",
+		})
+		return
+	}
 	// 拨号连接用户grpc服务器
 	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", ip, port), grpc.WithInsecure())
 	if err != nil {
