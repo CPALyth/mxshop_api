@@ -91,7 +91,6 @@ func GetUserList(ctx *gin.Context) {
 	pnInt, _ := strconv.Atoi(pn)
 	pSize := ctx.DefaultQuery("pSize", "10")
 	pSizeInt, _ := strconv.Atoi(pSize)
-	zap.S().Info(pnInt, pSizeInt)
 	// 调用接口
 	rsp, err := userSrvClient.GetUserList(context.Background(), &proto.PageInfo{
 		Pn:    uint32(pnInt),
