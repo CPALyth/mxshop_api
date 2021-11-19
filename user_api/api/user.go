@@ -6,6 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -123,8 +124,7 @@ func PassWordLogin(c *gin.Context) {
 		HandleValidatorError(c, err)
 		return
 	}
-	ip := global.ServerConfig.UserSrvInfo.Host
-	port := global.ServerConfig.UserSrvInfo.Port
+
 	// 验证验证码
 	pass := store.Verify(passwordLogin.CaptchaId, passwordLogin.Captcha, true)
 	if !pass {
@@ -134,6 +134,8 @@ func PassWordLogin(c *gin.Context) {
 		return
 	}
 	// 拨号连接用户grpc服务器
+	ip := global.ServerConfig.UserSrvInfo.Host
+	port := global.ServerConfig.UserSrvInfo.Port
 	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", ip, port), grpc.WithInsecure())
 	if err != nil {
 		zap.S().Errorw("[GetUserList] 连接用户服务失败",
@@ -198,6 +200,71 @@ func PassWordLogin(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
+		"msg":   "登录成功",
+		"token": token,
+	})
+}
+
+func Register(ctx *gin.Context) {
+	// 用户注册
+	registerForm := forms.RegisterForm{}
+	if err := ctx.ShouldBind(&registerForm); err != nil {
+		HandleValidatorError(ctx, err)
+		return
+	}
+	// 将验证码保存到redis
+	rdb := redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%d", global.ServerConfig.RedisInfo.Host, global.ServerConfig.RedisInfo.Port),
+	})
+	value, err := rdb.Get(context.Background(), registerForm.Mobile).Result()
+	if err == redis.Nil || value != registerForm.Code {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": "验证码错误",
+		})
+		return
+	}
+
+	// 拨号连接用户grpc服务器
+	ip := global.ServerConfig.UserSrvInfo.Host
+	port := global.ServerConfig.UserSrvInfo.Port
+	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", ip, port), grpc.WithInsecure())
+	if err != nil {
+		zap.S().Errorw("[Register] 连接用户服务失败",
+			"msg", err.Error())
+	}
+	userSrvClient := proto.NewUserClient(userConn)
+	// 调用grpc接口
+	rsp, err := userSrvClient.CreateUser(context.Background(), &proto.CreateUserInfo{
+		NickName: registerForm.Mobile,
+		Password: registerForm.PassWord,
+		Mobile:   registerForm.Mobile,
+	})
+	if err != nil {
+		zap.S().Errorf("[Register] 调用grpc接口失败, %s", err.Error())
+		HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+	// 注册成功, 返回token
+	now_unix := time.Now().Unix()
+	claims := models.CustomClaims{
+		ID:          uint(rsp.Id),
+		NickName:    rsp.NickName,
+		AuthorityId: uint(rsp.Role),
+		StandardClaims: jwt.StandardClaims{
+			NotBefore: now_unix,               // 签名的生效时间
+			ExpiresAt: now_unix + 60*60*24*30, // 30天过期
+			Issuer:    "ws",
+		},
+	}
+	j := middlewares.NewJWT()
+	token, err := j.CreateToken(claims)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "生成token失败",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
 		"msg":   "登录成功",
 		"token": token,
 	})
