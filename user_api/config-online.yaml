@@ -1,5 +1,18 @@
 name: 'user-api'
 port: 8021
+
 user_srv:
   host: '127.0.0.1'
   port: 50051
+
+jwt:
+  key: 't!P*QdOSWMRGNV!U$0ya$Cc$4VaUD^Gm'
+
+sms:
+  key: 'LTAI4FzGkwzJyrKfCex9kpP1'
+  secret: 'r5aWSxybxkuT4R0cwpRqqusXtcwxt5'
+  expire: 300
+
+redis:
+  host: '192.168.1.103'
+  port: 6379
