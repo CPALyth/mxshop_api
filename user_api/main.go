@@ -24,8 +24,11 @@ func main() {
 	// 初始化routers
 	Router := initialize.Routers()
 
-	// 初始化
+	// 初始化翻译
 	_ = initialize.InitTrans("zh")
+
+	// 初始化srv的连接
+	initialize.InitSrvConn()
 
 	// 注册验证器
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
