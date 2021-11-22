@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap"
 	"mxshop_api/user_api/global"
 	"mxshop_api/user_api/initialize"
-	"mxshop_api/user_api/utils"
 	myvalidator "mxshop_api/user_api/validator"
 )
 
@@ -44,11 +43,7 @@ func main() {
 	}
 
 	// 获取端口
-	port, err := utils.GetFreePort()
-	if err == nil {
-		global.ServerConfig.Port = port
-	}
-	port = global.ServerConfig.Port
+	port := global.ServerConfig.Port
 	zap.S().Infof("启动服务器, 端口:%d", port)
 
 	if err := Router.Run(fmt.Sprintf(":%d", port)); err != nil {
