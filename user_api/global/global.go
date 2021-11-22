@@ -8,6 +8,6 @@ import (
 
 var (
 	Trans         ut.Translator
-	ServerConfig  *config.ServerConfig = &config.ServerConfig{}
+	ServerConfig  = &config.ServerConfig{}
 	UserSrvClient proto.UserClient
 )
