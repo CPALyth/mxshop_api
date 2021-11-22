@@ -35,7 +35,7 @@ func JWTAuth() gin.HandlerFunc {
 				}
 			}
 
-			c.JSON(http.StatusUnauthorized, "未登陆")
+			c.JSON(http.StatusUnauthorized, "未登录")
 			c.Abort()
 			return
 		}

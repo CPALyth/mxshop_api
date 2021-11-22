@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/go-redis/redis/v8"
+	"github.com/hashicorp/consul/api"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -77,10 +78,30 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 }
 
 func GetUserList(ctx *gin.Context) {
-	ip := global.ServerConfig.UserSrvInfo.Host
-	port := global.ServerConfig.UserSrvInfo.Port
+	// 从注册中心获取服务信息
+	cfg := api.DefaultConfig()
+	consulInfo := global.ServerConfig.ConsulInfo
+	cfg.Address = fmt.Sprintf("%s:%d", consulInfo.Host, consulInfo.Port)
+
+	client, err := api.NewClient(cfg)
+	if err != nil {
+		panic(err)
+	}
+
+	data, err := client.Agent().ServicesWithFilter(fmt.Sprintf(`Service == "%s"`, global.ServerConfig.UserSrvInfo.Name))
+	if err != nil {
+		panic(err)
+	}
+	userSrvHost := ""
+	userSrvPort := 0
+	for _, val := range data {
+		userSrvHost = val.Address
+		userSrvPort = val.Port
+		break
+	}
+
 	// 拨号连接用户grpc服务器
-	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", ip, port), grpc.WithInsecure())
+	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", userSrvHost, userSrvPort), grpc.WithInsecure())
 	if err != nil {
 		zap.S().Errorw("[GetUserList] 连接用户服务失败",
 			"msg", err.Error())
@@ -126,7 +147,7 @@ func PassWordLogin(c *gin.Context) {
 	}
 
 	// 验证验证码
-	pass := store.Verify(passwordLogin.CaptchaId, passwordLogin.Captcha, true)
+	pass := store.Verify(passwordLogin.CaptchaId, passwordLogin.Captcha, false)
 	if !pass {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"captcha": "验证码错误",

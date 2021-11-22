@@ -5,15 +5,10 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"mxshop_api/user_api/global"
-	"os"
 )
 
 func InitConfig() {
 	configFileName := "config-online.yaml"
-	fmt.Println("MXSHOP_DEBUG:", os.Getenv("MXSHOP_DEBUG"))
-	if os.Getenv("MXSHOP_DEBUG") == "true" {
-		configFileName = "config-dev.yaml"
-	}
 
 	v := viper.New()
 	v.SetConfigFile(configFileName)
