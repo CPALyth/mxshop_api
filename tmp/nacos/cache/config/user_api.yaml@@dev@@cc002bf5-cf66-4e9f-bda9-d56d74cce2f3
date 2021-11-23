@@ -1,0 +1,24 @@
+name: 'user_api'
+port: 8021
+xxxx: 1
+
+user_srv:
+  host: '192.168.1.103'
+  port: 50051
+  name: 'user_srv'
+
+jwt:
+  key: 't!P*QdOSWMRGNV!U$0ya$Cc$4VaUD^Gm'
+
+sms:
+  key: 'LTAI4FzGkwzJyrKfCex9kpP1'
+  secret: 'r5aWSxybxkuT4R0cwpRqqusXtcwxt5'
+  expire: 300
+
+redis:
+  host: '192.168.1.103'
+  port: 6379
+
+consul:
+  host: '192.168.1.103'
+  port: 8500
