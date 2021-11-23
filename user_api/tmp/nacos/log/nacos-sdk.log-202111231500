@@ -1,0 +1,17 @@
+2021-11-23T15:57:00.799+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user_api.jsondev66036edf27201953e0dbd89744fe382acc002bf5-cf66-4e9f-bda9-d56d74cce2f3 tenant:cc002bf5-cf66-4e9f-bda9-d56d74cce2f3] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 Long-Pulling-Timeout-No-Hangup:true accessKey: secretKey:] 
+
+2021-11-23T15:57:00.800+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-11-23T15:57:00.811+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user_api.jsondev66036edf27201953e0dbd89744fe382acc002bf5-cf66-4e9f-bda9-d56d74cce2f3 tenant:cc002bf5-cf66-4e9f-bda9-d56d74cce2f3] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-11-23T15:57:30.313+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-11-23T15:57:30.324+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user_api.jsondev66036edf27201953e0dbd89744fe382acc002bf5-cf66-4e9f-bda9-d56d74cce2f3 tenant:cc002bf5-cf66-4e9f-bda9-d56d74cce2f3] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-11-23T15:57:59.826+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-11-23T15:57:59.840+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user_api.jsondev66036edf27201953e0dbd89744fe382acc002bf5-cf66-4e9f-bda9-d56d74cce2f3 tenant:cc002bf5-cf66-4e9f-bda9-d56d74cce2f3] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-11-23T15:58:29.342+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-11-23T15:58:29.352+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user_api.jsondev66036edf27201953e0dbd89744fe382acc002bf5-cf66-4e9f-bda9-d56d74cce2f3 tenant:cc002bf5-cf66-4e9f-bda9-d56d74cce2f3] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+
+2021-11-23T15:58:58.854+0800	[34mINFO[0m	[client.ListenConfig] no change
+2021-11-23T15:58:58.864+0800	[34mINFO[0m	[client.ListenConfig] request params:map[Listening-Configs:user_api.jsondev66036edf27201953e0dbd89744fe382acc002bf5-cf66-4e9f-bda9-d56d74cce2f3 tenant:cc002bf5-cf66-4e9f-bda9-d56d74cce2f3] header:map[Content-Type:application/x-www-form-urlencoded;charset=utf-8 Long-Pulling-Timeout:30000 accessKey: secretKey:] 
+

@@ -1,23 +1,7 @@
-name: 'user-api'
-port: 8021
-
-user_srv:
-  host: '192.168.1.103'
-  port: 50051
-  name: 'user_srv'
-
-jwt:
-  key: 't!P*QdOSWMRGNV!U$0ya$Cc$4VaUD^Gm'
-
-sms:
-  key: 'LTAI4FzGkwzJyrKfCex9kpP1'
-  secret: 'r5aWSxybxkuT4R0cwpRqqusXtcwxt5'
-  expire: 300
-
-redis:
-  host: '192.168.1.103'
-  port: 6379
-
-consul:
-  host: '192.168.1.103'
-  port: 8500
+host: '192.168.1.103'
+port: 8848
+namespace: 'cc002bf5-cf66-4e9f-bda9-d56d74cce2f3'
+user: 'nacos'
+password: 'nacos'
+dataid: 'user_api.json'
+group: 'dev'
